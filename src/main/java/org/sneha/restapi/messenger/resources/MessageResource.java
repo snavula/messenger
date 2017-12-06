@@ -63,7 +63,7 @@ public class MessageResource {
 	
 	@POST
 	public Response addMessage(Message message, @Context UriInfo uriInfo) throws URISyntaxException {
-		
+		//sending location and status code together
 		Message newMessage = messageService.addMessage(message);
 		String newId = String.valueOf(newMessage.getId());
 		URI Uri = uriInfo.getAbsolutePathBuilder().path(newId).build();

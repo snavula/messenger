@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.sneha.restapi.messenger.database.DatabaseClass;
 import org.sneha.restapi.messenger.model.Message;
+import org.sneha.restapi.messenger.exception.DataNotFoundException;
 
 public class MessageService {
 	
@@ -21,7 +22,11 @@ public class MessageService {
 	}
 	
 	public Message getMessage(long id) {
-		return messages.get(id);
+		Message message = messages.get(id);
+		if(message == null) {
+			throw new DataNotFoundException("DATA NOT FOUND");
+		}
+		return message;
 	}
 	
 	public List<Message> getAllMessagesForYear(int year) {
