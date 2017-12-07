@@ -4,9 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
 import org.sneha.restapi.messenger.database.DatabaseClass;
 import org.sneha.restapi.messenger.model.Comment;
 import org.sneha.restapi.messenger.model.Message;
+import org.sneha.restapi.messenger.model.ErrorMessage;
 
 public class CommentService {
 	
@@ -18,7 +24,20 @@ public class CommentService {
 	}
 	
 	public Comment getComment(long messageId, long commentId) {
+		ErrorMessage em = new ErrorMessage("NOT FOUND", 500, "link to wbsite");
+		Response response = Response.status(Status.NOT_FOUND)
+							.entity(em)
+							.build();
+		Message message = messages.get(messageId);
+		if(message == null) {
+			throw new WebApplicationException(response);
+		}
 		Map<Long, Comment> comments = messages.get(messageId).getComments();
+		Comment comment = comments.get(commentId);
+		if(comment == null) {
+			throw new NotFoundException(response);
+			// we dont have to set status, because it already contains 500 status
+		}
 		return comments.get(commentId);
 	}
 	

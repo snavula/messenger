@@ -17,7 +17,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.sneha.restapi.messenger.service.MessageService;
@@ -31,7 +30,20 @@ public class MessageResource {
 	MessageService messageService = new MessageService();
 	
 	@GET
-	public List<Message> getMessages(@BeanParam MessageFilterBean filterBean) {
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Message> getJsonMessages(@BeanParam MessageFilterBean filterBean) {
+		if(filterBean.getYear() > 0) {
+			return messageService.getAllMessagesForYear(filterBean.getYear());
+		}
+		if(filterBean.getStart() >= 0 && filterBean.getSize() > 0) {
+			return messageService.getAllMessagesPaginated(filterBean.getStart(), filterBean.getSize());
+		}
+		return messageService.getAllMessages();
+	}
+	
+	@GET
+	@Produces(MediaType.TEXT_XML)
+	public List<Message> getXmlMessages(@BeanParam MessageFilterBean filterBean) {
 		if(filterBean.getYear() > 0) {
 			return messageService.getAllMessagesForYear(filterBean.getYear());
 		}
@@ -43,8 +55,40 @@ public class MessageResource {
 	
 	@GET
 	@Path("/{messageId}")
-	public Message getMessage(@PathParam("messageId") long id) {
-		return messageService.getMessage(id);
+	public Message getMessage(@PathParam("messageId") long id, @Context UriInfo uriInfo) {
+		Message message = messageService.getMessage(id); 
+		message.addLink(getUriSelf(uriInfo, message), "self");
+		message.addLink(getUriProfile(uriInfo, message), "profile");
+		message.addLink(getUriComments(uriInfo, message), "comments");
+		return message;	
+	}
+	
+	private String getUriSelf(UriInfo uriInfo, Message message) {
+		String uri = uriInfo.getBaseUriBuilder()
+				.path(MessageResource.class)
+				.path(Long.toString(message.getId()))
+				.build()
+				.toString();
+		return uri;	
+	}
+	
+	private String getUriProfile(UriInfo uriInfo, Message message) {
+		URI uri = uriInfo.getBaseUriBuilder()
+				.path(ProfileResource.class)
+				.path(message.getAuthor())
+				.build();
+		return uri.toString();
+
+	}
+	
+	private String getUriComments(UriInfo uriInfo, Message message) {
+		URI uri = uriInfo.getBaseUriBuilder()
+				.path(MessageResource.class)
+				.path(MessageResource.class, "getCommentResource")
+				.path(CommentResource.class)
+				.resolveTemplate("messageId", message.getId())
+				.build();
+		return uri.toString();
 	}
 	
 	@PUT
