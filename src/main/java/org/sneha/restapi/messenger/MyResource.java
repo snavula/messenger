@@ -42,4 +42,10 @@ public class MyResource {
     public Date testMethod() {
     	return Calendar.getInstance().getTime();
     }
+    
+    @GET
+    @Produces(value = { MediaType.TEXT_PLAIN, "text/shortdate" })
+    public Date testMethodShortDate() {
+    	return Calendar.getInstance().getTime();
+    }
 }
