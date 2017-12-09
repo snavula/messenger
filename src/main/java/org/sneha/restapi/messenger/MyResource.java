@@ -36,7 +36,7 @@ public class MyResource {
     	count = count + 1;
         return "Got the count! "+count+"PATH PARAM VALUE: "+pathParamExample+"QUERY PARAM VALUE: "+queryParamExample;
     }   
-    
+   /* 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public Date testMethod() {
@@ -47,5 +47,5 @@ public class MyResource {
     @Produces(value = { MediaType.TEXT_PLAIN, "text/shortdate" })
     public Date testMethodShortDate() {
     	return Calendar.getInstance().getTime();
-    }
+    }*/
 }
