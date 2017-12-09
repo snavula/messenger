@@ -17,10 +17,12 @@ public class SecurityFil implements ContainerRequestFilter {
  
 	private static final String AUTHORIZATION_HEADER_KEY = "Authorization Header";
 	private static final String AUTHORIZATION_HEADER_PREFIX = "Basic";
+	private static final String SECURED_URL_PREFIX = "secured";
 	
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException
 			throws IOException {
+	if(requestContext.getUriInfo().getPath().contains(SECURED_URL_PREFIX )) {
 	List<String> authHeader = requestContext.getHeaders().get(AUTHORIZATION_HEADER_KEY);
 	if(authHeader.size() > 0) {	
 		String authToken = authHeader.get(0);
@@ -38,6 +40,7 @@ public class SecurityFil implements ContainerRequestFilter {
 									.entity("USER cannot access the resource")
 									.build();
 		requestContext.abortWith(unauthorizedStatus);
-	}
+	  }
+	 }
 	}
 }
